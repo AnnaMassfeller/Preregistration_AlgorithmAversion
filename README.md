@@ -1,6 +1,6 @@
 # Preregistration_AlgorithmAversion
 
-In this repository the code that was used to create the synthetic data and rund the models as described in the pre-registration is stored:
+In this repository, the code that was used to create the synthetic data and run the models as described in the pre-registration, is stored:
 
 - requirments: required versions of packages needed to run the code properly
 - Preregistration.py: Python file to be run first, in here the synthetic data is created that will be used (also in th R code).
