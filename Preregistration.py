@@ -374,6 +374,12 @@ prior_predictions_H1 = cond_prior_predictive_H1(rng_key, **dict_characteristics)
 #-------------------------------------------------
 
 #%% create Plot for the prior predictive distribution of Delta WTP when H1 is true as in pregresitration (Figure 5)
+import seaborn as sns
+sns.reset_defaults()  # undo seaborn styles if used
+
+plt.style.use('default')  # clean matplotlib style
+
+#%%
 colors = [(0, "green"), (0.5, "blue"), (1, "orange")]  # Define the colors at normalized points (0, 0.5, 1)
 cmap = mcolors.LinearSegmentedColormap.from_list("custom_cmap", colors)
 
@@ -398,18 +404,23 @@ for i in range(prior_predictions_H1['LatentAIAnxiety'].shape[1]):
 sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
 sm.set_array([])  # Empty array needed for ScalarMappable
 
-# Add colorbar explicitly to the figure
-plt.colorbar(sm, ax=ax, label='LatentAIAnxiety')
+# Add colorbar explicitly to the figure and reverse it
+cbar = plt.colorbar(sm, ax=ax, label='AI-Anxiety')
+cbar.ax.invert_yaxis()  # This flips the colorbar vertically
+
 plt.ylim(-3, 3)  # Set the y-axis limits to match the range of dWtpHat
-plt.title('Prior Predictive Distribution of Delta WTP when H1 is true')
-plt.xlabel('Delta True')
+#plt.title('Prior Predictive Distribution of Delta WTP when H1 is true')
+plt.xlabel('Delta Performance')
 plt.ylabel('Delta WTP')
 # Set the x-ticks to show only -0.1, -0.05, 0, 0.05, and 0.1
 ax.set_xticks([-0.1, -0.05, 0, 0.05, 0.1])
 ax.set_xticklabels(['-0.1', '-0.05', '0', '0.05', '0.1'])  # Optional, you can also customize the labels
 
 # Show the plot
+plt.tight_layout()
 plt.show()
+
+
 
 
 #%%we save dict characteristics and the prior predicitve samples for H1 is true in one dictionary
@@ -506,10 +517,12 @@ for i in range(prior_predictions_NoH1['LatentAIAnxiety'].shape[1]):
 sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
 sm.set_array([])  # Empty array needed for ScalarMappable
 
-# Add colorbar explicitly to the figure
-plt.colorbar(sm, ax=ax, label='LatentAIAnxiety')
+# Add colorbar explicitly to the figure and reverse it
+cbar = plt.colorbar(sm, ax=ax, label='AI-Anxiety')
+cbar.ax.invert_yaxis()  # This flips the colorbar vertically
+
 plt.ylim(-3, 3)  # Set the y-axis limits to match the range of dWtpHat
-plt.title('Prior Predictive Distribution of Delta WTP when H1 is not true')
+#plt.title('Prior Predictive Distribution of Delta WTP when H1 is not true')
 plt.xlabel('Delta True')
 plt.ylabel('Delta WTP')
 # Set the x-ticks to show only -0.1, -0.05, 0, 0.05, and 0.1
@@ -626,9 +639,12 @@ for i in range(samples_mcmc_H1['LatentAIAnxiety'].shape[1]):
 sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
 sm.set_array([])  # Empty array needed for ScalarMappable
 
-plt.colorbar(sm, ax=ax, label='LatentAIAnxiety')
+# Add colorbar explicitly to the figure and reverse it
+cbar = plt.colorbar(sm, ax=ax, label='AI-Anxiety')
+cbar.ax.invert_yaxis()  # This flips the colorbar vertically
+
 plt.ylim(-3, 3)  # Set the y-axis limits to match the range of dWtpHat
-plt.title('Posterior Predictive Distribution of Delta WTP when H1 is true')
+#plt.title('Posterior Predictive Distribution of Delta WTP when H1 is true')
 plt.xlabel('Delta True')
 plt.ylabel('Delta WTP')
 # Set the x-ticks to show only -0.1, -0.05, 0, 0.05, and 0.1
@@ -659,9 +675,12 @@ for i in range(samples_mcmc_NoH1['LatentAIAnxiety'].shape[1]):
 # Create a dummy mappable for the colorbar
 sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
 sm.set_array([]) 
-plt.colorbar(sm, ax=ax, label='LatentAIAnxiety')
+# Add colorbar explicitly to the figure and reverse it
+cbar = plt.colorbar(sm, ax=ax, label='AI-Anxiety')
+cbar.ax.invert_yaxis()  # This flips the colorbar vertically
+
 plt.ylim(-3, 3)  # Set the y-axis limits to match the range of dWtpHat
-plt.title('Posterior Predictive Distribution of Delta WTP when H1 is not true')
+#plt.title('Posterior Predictive Distribution of Delta WTP when H1 is not true')
 plt.xlabel('Delta True')
 plt.ylabel('Delta WTP')
 # Set the x-ticks to show only -0.1, -0.05, 0, 0.05, and 0.1
@@ -701,10 +720,32 @@ ax = az.plot_posterior(
     xrr,
     coords={},
     group='posterior',
-    var_names=['beta_AIA_BI','beta_AA'],
+    var_names=['beta_AIA_BI'],
     label='posterior',
     ref_val=[
-        prior_predictions_H1['beta_AIA_BI'].flatten().tolist()[0],
+        prior_predictions_H1['beta_AIA_BI'].flatten().tolist()[0]
+    ],
+)
+ax = az.plot_posterior(
+    xrr,
+    coords={},
+    group='prior',
+    var_names=['beta_AIA_BI'],
+    hdi_prob='hide',
+    point_estimate=None,
+    color='green',
+    label='prior',
+    ax=ax
+)
+
+#%%
+ax = az.plot_posterior(
+    xrr,
+    coords={},
+    group='posterior',
+    var_names=['beta_AA'],
+    label='posterior',
+    ref_val=[
         prior_predictions_H1['beta_AA'].flatten().tolist()[0]
     ],
 )
@@ -712,13 +753,16 @@ ax = az.plot_posterior(
     xrr,
     coords={},
     group='prior',
-    var_names=['beta_AIA_BI','beta_AA'],
+    var_names=['beta_AA'],
     hdi_prob='hide',
     point_estimate=None,
     color='green',
     label='prior',
     ax=ax
 )
+
+
+
 
 #%%trace plot for selected vars (Figure 7 in Preregistration)
 az.plot_trace(mcmc_synthetic_H1True,
@@ -758,18 +802,17 @@ ax = az.plot_posterior(
     xrr,
     coords={},
     group='posterior',
-    var_names=['beta_AIA_BI','beta_AA'],
+    var_names=['beta_AIA_BI'],
     label='posterior',
     ref_val=[
-        prior_predictions_NoH1['beta_AIA_BI'].flatten().tolist()[0],
-        prior_predictions_NoH1['beta_AA'].flatten().tolist()[0]
+        prior_predictions_NoH1['beta_AIA_BI'].flatten().tolist()[0]
     ],
 )
 ax = az.plot_posterior(
     xrr,
     coords={},
     group='prior',
-    var_names=['beta_AIA_BI','beta_AA'],
+    var_names=['beta_AIA_BI'],
     hdi_prob='hide',
     point_estimate=None,
     color='green',
@@ -777,6 +820,28 @@ ax = az.plot_posterior(
     ax=ax
 )
 
+#%%
+ax = az.plot_posterior(
+    xrr,
+    coords={},
+    group='posterior',
+    var_names=['beta_AA'],
+    label='posterior',
+    ref_val=[
+        prior_predictions_NoH1['beta_AA'].flatten().tolist()[0]
+    ],
+)
+ax = az.plot_posterior(
+    xrr,
+    coords={},
+    group='prior',
+    var_names=['beta_AA'],
+    hdi_prob='hide',
+    point_estimate=None,
+    color='green',
+    label='prior',
+    ax=ax
+)
 
 #%%trace plot for selected vars (Figure 7 in Preregistration)
 az.plot_trace(mcmc_synthetic_NoH1,
